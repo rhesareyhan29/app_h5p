@@ -1,96 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class StudentProfileCard extends StatelessWidget {
   const StudentProfileCard({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 450,
-      height: 215,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0C4D8A),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // PROFILE PICTURE
-          Container(
-            width: 90,
-            height: 90,
-            decoration: BoxDecoration(
-              color: const Color(0xFF00A6FB),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const Icon(
-              Icons.person,
-              size: 48,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(width: 20),
+  Stream<DocumentSnapshot<Map<String, dynamic>>> _userStream() {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
 
-          // PROFILE INFO
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                _ProfileItem(
-                  label: 'Nama',
-                  value: 'Andi Pratama',
-                ),
-                SizedBox(height: 12),
-                _ProfileItem(
-                  label: 'No. Seri',
-                  value: 'S123456',
-                ),
-                SizedBox(height: 12),
-                _ProfileItem(
-                  label: 'Kelas',
-                  value: 'VIII A',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .snapshots();
   }
-}
-
-class _ProfileItem extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _ProfileItem({
-    required this.label,
-    required this.value,
-  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.white.withOpacity(0.7),
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: _userStream(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox(
+            width: 450,
+            height: 215,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final data = snapshot.data!.data()!;
+
+        final name = data['name'] ?? '-';
+        final email = data['email'] ?? '-';
+        final classId = data['classId'] ?? '-';
+
+        return Container(
+          width: 450,
+          height: 215,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0C4D8A),
+            borderRadius: BorderRadius.circular(18),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+          child: Row(
+            children: [
+
+              /// PROFILE PICTURE
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00A6FB),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Icon(
+                  Icons.person,
+                  color: Colors.white,
+                  size: 60,
+                ),
+              ),
+
+              const SizedBox(width: 24),
+
+              /// TEXT DATA
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Text(
+                      email,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Text(
+                      "Kelas $classId",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

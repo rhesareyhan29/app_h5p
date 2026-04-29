@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class CourseCard extends StatefulWidget {
   final String title;
   final double progress; // 0.0 - 1.0
+  final VoidCallback? onTap;
 
   const CourseCard({
     super.key,
     required this.title,
     required this.progress,
+    this.onTap,
   });
 
   @override
@@ -23,6 +25,8 @@ class _CourseCardState extends State<CourseCard> {
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.all(16),
@@ -82,6 +86,7 @@ class _CourseCardState extends State<CourseCard> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

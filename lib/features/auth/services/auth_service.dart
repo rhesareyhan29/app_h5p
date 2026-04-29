@@ -24,4 +24,14 @@ class AuthService {
 
     return userDoc['role'];
   }
+
+  Future<void> loginOnly({
+    required String email,
+    required String password,
+  }) async {
+    await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+  }
 }

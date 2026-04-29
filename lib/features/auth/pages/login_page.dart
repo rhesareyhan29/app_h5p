@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import '../../home/pages/admin_home_page.dart';
-import '../../home/pages/guru_home_page.dart';
-import '../../home/pages/siswa_home_page.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -31,37 +29,16 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      final role = await _authService.loginAndGetRole(
+      await _authService.loginOnly(
         email: _emailController.text.trim(),
         password: _passwordController.text,
-      );
-
-      if (!mounted) return;
-
-      Widget target;
-      switch (role?.toLowerCase()) {
-        case 'admin':
-          target = const AdminHomePage();
-          break;
-        case 'guru':
-          target = const GuruHomePage();
-          break;
-        case 'siswa':
-          target = const SiswaHomePage();
-          break;
-        default:
-          throw Exception('Role tidak dikenali');
-      }
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => target),
       );
     } catch (e) {
       final message = e.toString().toLowerCase();
 
       setState(() {
-        if (message.contains('email') || message.contains('user-not-found')) {
+        if (message.contains('email') ||
+            message.contains('user-not-found')) {
           _emailError = 'Email salah';
         } else if (message.contains('password') ||
             message.contains('wrong-password')) {
@@ -203,3 +180,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
